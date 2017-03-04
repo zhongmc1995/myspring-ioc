@@ -9,6 +9,7 @@ import java.util.Set;
 
 import com.zmc.beandefintion.BeanDefinition;
 import com.zmc.beandefintion.PropertyDefinition;
+import com.zmc.configuration.BeanFactoryConfiguration;
 
 /**
  * @author zhongmc
@@ -19,6 +20,12 @@ public class XmlBeanFactory implements BeanFactory {
 	private Map<String, Object> beans = new HashMap<String, Object>();
 	//存放beandefinition的容器
 	private Set<BeanDefinition> beanDefinitions = new HashSet<BeanDefinition>();
+	
+	//无参构造函数
+	public XmlBeanFactory(String xmlPath){
+		new BeanFactoryConfiguration(xmlPath, beanDefinitions);
+	}
+	
 	@Override
 	public Object getBean(String id) {
 		//缓存中有的话从缓存中获取
@@ -36,13 +43,14 @@ public class XmlBeanFactory implements BeanFactory {
 					String property = propertyDefinition.getName();
 					Method method = getBeanMethod(className,property);
 					String ref = propertyDefinition.getRef();
-					if ("".equals(ref)||ref==null) {
+					if (ref!=null&&!"".equals(ref)) {
 						method.invoke(bean, getBean(ref));
 					}else {
 						setValue(method, bean, propertyDefinition.getValue());
 					}
 				}
 				beans.put(id, bean);
+				return bean;
 			} catch (ClassNotFoundException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -70,8 +78,10 @@ public class XmlBeanFactory implements BeanFactory {
 			firstChar -=32;
 		}
 		sb.append(firstChar).append(property.substring(1));
-		for (Method m : className.getMethods()) {
-			if (m.getName().equals(sb)) {
+		Method[] methods = className.getMethods();
+		for (Method m : methods) {
+			String methodName = m.getName();
+			if (methodName.equals(sb.toString())) {
 				return m;
 			}
 		}

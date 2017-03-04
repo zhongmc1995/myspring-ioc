@@ -1,0 +1,10 @@
+<beans>
+	<bean id="hello" class="com.zmc.test.Hello">
+		<property name="str" value="hello world"></property>
+	</bean>
+
+	<bean id="hellos" class="com.zmc.test.Hellos">
+		<property name="hello" ref="hello"></property>
+	</bean>
+
+</beans>
